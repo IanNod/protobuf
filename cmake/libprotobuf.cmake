@@ -111,16 +111,17 @@ set(libprotobuf_includes
   ${protobuf_source_dir}/src/google/protobuf/wire_format.h
   ${protobuf_source_dir}/src/google/protobuf/wrappers.pb.h
 )
-
 if (MSVC)
-set(libprotobuf_rc_files
-  ${CMAKE_CURRENT_BINARY_DIR}/version.rc
-)
-endif()
-
+ set(libprotobuf_rc_files
+   ${CMAKE_CURRENT_BINARY_DIR}/version.rc)
+  set(MSVC_STATIC_RUNTIME ON)
+  # prevent error LNK2019: unresolved external symbol _sprintf referenced in function __bdf_parse_properties
+  # see http://stackoverflow.com/a/32418900/469659
+  set(PROTOBUF_EXTRA_LIBS "legacy_stdio_definitions.lib")
+ endif()
 add_library(libprotobuf ${protobuf_SHARED_OR_STATIC}
-  ${libprotobuf_lite_files} ${libprotobuf_files} ${libprotobuf_includes} ${libprotobuf_rc_files})
-target_link_libraries(libprotobuf ${CMAKE_THREAD_LIBS_INIT})
+  ${libprotobuf_lite_files} ${libprotobuf_files} ${libprotobuf_includes})
+target_link_libraries(libprotobuf ${CMAKE_THREAD_LIBS_INIT} ${PROTOBUF_EXTRA_LIBS})
 if(protobuf_WITH_ZLIB)
     target_link_libraries(libprotobuf ${ZLIB_LIBRARIES})
 endif()
